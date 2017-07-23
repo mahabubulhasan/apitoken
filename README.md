@@ -1,7 +1,34 @@
 # apitoken
 API access token to be used in conjunction with uzzal/acl
 
+## Installation
+```
+composer require uzzal/apitoken
+```
 
+## Confiuration
+At the `config/app.php` add 
+```php
+Uzzal\ApiToken\TokenServiceProvider::class
+```
+
+
+## Route
+
+```php
+Route::group(['middleware' => ['token.checker']
+    , 'prefix'=>'api/v1'
+    , 'namespace'=> 'Api']
+    , function(){
+
+    Route::resource('faq', 'FaqController', [
+        'only' => ['index']
+    ]);
+});
+``` 
+
+
+## Controller
 ```php
 <?php
 namespace App\Http\Controllers\Api;
@@ -9,7 +36,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Guard;
-use App\Services\Api\AuthService;
+use Uzzal\ApiToken\AuthService;
 use Log;
 
 class AuthController extends Controller {
