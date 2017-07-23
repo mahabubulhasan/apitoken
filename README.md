@@ -7,9 +7,13 @@ composer require uzzal/apitoken
 ```
 
 ## Confiuration
-At the `config/app.php` add 
+At the `config/app.php` add service provider
 ```php
 Uzzal\ApiToken\TokenServiceProvider::class
+```
+At the `app\Http\Kernel.php` add this middleware
+```php
+'token.checker' => \Uzzal\ApiToken\TokenChecker::class
 ```
 
 
