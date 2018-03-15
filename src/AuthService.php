@@ -25,6 +25,10 @@ class AuthService
 
     private static $_token_user;
 
+    /**
+     * @param $token
+     * @return bool
+     */
     public static function isValidToken($token) {
         if (!self::$_token_user) {
             self::$_token_user = AuthToken::where('token', '=', $token);
@@ -52,10 +56,9 @@ class AuthService
      */
     public function generateToken() {
         $user = Auth::user();
-        $user_id = $user->user_id;
+        $user_id = $user->{$user->getKeyName()};
         $name = $user->name;
         $email = $user->email;
-
         $token = bcrypt($user_id . date('l Y-m-d H:i:s') . rand(1, 9999));
         if (AuthToken::create([
             'user_id' => $user_id,
