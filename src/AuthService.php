@@ -2,8 +2,6 @@
 namespace Uzzal\ApiToken;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-
 
 /**
  *
@@ -11,24 +9,8 @@ use Illuminate\Support\Facades\Validator;
  */
 class AuthService
 {
-    /**
-     *
-     * @param array $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    public function validator($data) {
-        return Validator::make($data, [
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-    }
-
     private static $_token_user;
 
-    /**
-     * @param $token
-     * @return bool
-     */
     public static function isValidToken($token) {
         if (!self::$_token_user) {
             self::$_token_user = AuthToken::where('token', '=', $token);
@@ -51,14 +33,12 @@ class AuthService
     }
 
     /**
-     *
-     * @return array|boolean
+     * @return array|bool
      */
     public function generateToken() {
         $user = Auth::user();
-        $user_id = $user->{$user->getKeyName()};
-        $name = $user->name;
-        $email = $user->email;
+        $user_id = Auth::id();
+
         $token = bcrypt($user_id . date('l Y-m-d H:i:s') . rand(1, 9999));
         if (AuthToken::create([
             'user_id' => $user_id,
@@ -66,9 +46,8 @@ class AuthService
         ])) {
             return [
                 'token'=> $token,
-                'user_id'=> $user_id,
-                'name'=> $name,
-                'email'=> $email
+                'user_id'=>$user_id,
+                'user'=> $user
             ];
         }
         return false;
