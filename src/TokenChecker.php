@@ -26,9 +26,9 @@ class TokenChecker
      * @return mixed
      */
     public function handle($request, Closure $next) {
-        $token = $request->get('_token');
+        $token = $request->get('_token', $request->header('token'));
 
-        if (!$this->service->isValidToken($token)) {
+        if (!$token || !$this->service->isValidToken($token)) {
             return response(['status'=>'failed','msg'=>'Unauthorized or Invalid token'], 401);
         }
 
