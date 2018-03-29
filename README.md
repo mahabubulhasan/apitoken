@@ -1,5 +1,5 @@
 # apitoken
-API access token to be used in conjunction with uzzal/acl
+API access token to be used in support with [uzzal/acl](github.com/mahabubulhasan/acl) library
 
 ## Installation
 ```
@@ -25,7 +25,7 @@ artisan migrate
 ```
 
 ## Route
-Suppose your want to create a api url for the `FaqController` like this `http://YOU-HOST/api/v1/faq` then,
+Suppose your want to create a api url for the `FaqController` like this `http://YOUR-HOST/api/v1/faq` then,
 in your `route/api.php` file add your routes like the below
 
 ```php
@@ -59,41 +59,12 @@ Here is a sample `AuthController` under the `Api` namespace in the `app/Http/Con
 <?php
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Auth\Guard;
-use Uzzal\ApiToken\AuthService;
+use Uzzal\ApiToken\Authenticate;
 
-class AuthController extends Controller {
-
-    protected $auth;
-    protected $service;
-
-    public function __construct(Guard $auth, AuthService $service) {
-        $this->auth = $auth;
-        $this->service = $service;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return Response
-     */
-    public function store(Request $request) {        
-        $validator = $this->service->validator($request->all());
-
-        if($validator->fails()){
-            return ['status'=>'failed', 'msg'=>$validator->messages()];
-        }
-
-        $credentials = $request->only('email', 'password');
-        if($this->auth->attempt($credentials, $request->has('remember'))){
-            return array_merge(['status'=>'success'], $this->service->generateToken());
-        }else{
-            return ['status'=>'failed','msg'=>'Invalid email or password'];
-        }
-    }
-
+class AuthController extends Controller
+{
+    use Authenticate;
 }
 ```
 
@@ -104,8 +75,14 @@ Route::resource('auth', 'Api\AuthController', [
     'only' => ['store']
 ]);
 ```
+or
+```php
+Route::post('auth', 'Api\AuthController@store');
+```
 
-__How it works:__ If user sends a `POST` request to this `AuthController` with `email` and `password` it will
+__How it works:__ If the user sends a `POST` request to this `AuthController` with `email` and `password` it will
 response with a `_token` (like this `$2y$10$/rUWXPY56sMsyYM6YNfEWea5IPO0xXeETDrAT0SS4dShk24H/fiZ6`) then you can use 
 that `_token` to access any protected url like this
 `http://YOUR-HOST/api/v1/faq?_token=$2y$10$/rUWXPY56sMsyYM6YNfEWea5IPO0xXeETDrAT0SS4dShk24H/fiZ6`
+
+__NOTE:__ You can pass the token via header, and in that case if you are to send the `_token` via header, in that case use `token` __instead of__ *_token* as the header key.
